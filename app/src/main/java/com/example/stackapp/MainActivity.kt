@@ -13,35 +13,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.stackapp.ui.theme.StackAppTheme
 
+val myStack = IntArray(3)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            StackAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+
+fun Pop (myStack: IntArray)
+{
+
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    StackAppTheme {
-        Greeting("Android")
-    }
+fun Push (myStack: IntArray)
+{
+
 }
