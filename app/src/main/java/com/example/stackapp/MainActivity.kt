@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import kotlin.system.exitProcess
-import android.widget.Button
 import android.widget.Toast
 
 val myStack = IntArray(3)
@@ -27,21 +25,26 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent{StackAppUI(this, stackIndex)}
+        setContent{StackAppUI(this)}
 
 
     }
 }
 
 
-fun pop (myStack: IntArray, context: Context)
+fun pop (context: Context)
 {
     val popToast = Toast.makeText(context, "Stack is Empty!", Toast.LENGTH_SHORT)
 
     try {
+        Log.d("Index before pop", stackIndex.toString())
+        myStack.copyInto(newStack, 0, myStack.first(), myStack.last())
         stackIndex--
-        myStack.copyInto(newStack,0,0, stackIndex)
-        newStack.copyInto(myStack)
+        newStack.copyInto(myStack, 0, newStack.first(), newStack.last())
+        Log.d("Current Stack", myStack.contentToString())
+        Log.d("New Stack", newStack.contentToString())
+        Log.d("Current Index", stackIndex.toString())
+
     } catch (e: ArrayIndexOutOfBoundsException)
     {
         popToast.show();
@@ -51,25 +54,30 @@ fun pop (myStack: IntArray, context: Context)
 
 }
 
-fun push (myStack: IntArray, num: Int, context: Context)
+fun push (num: Int, context: Context)
 {
     val pushToast = Toast.makeText(context, "Stack is Full!", Toast.LENGTH_SHORT)
     try {
         myStack[stackIndex] = num
-        stackIndex++
-        Log.d("Stack Index Inside Push", stackIndex.toString())
-
+        if (stackIndex < 2)
+            stackIndex++
     } catch (e: ArrayIndexOutOfBoundsException) {
         pushToast.show();
         stackIndex = 2
     }
 }
 // ---------- UI ----------
+
 @Composable
-fun StackAppUI(context: Context, index: Int) {
+fun StackAppUI(context: Context) {
     val context = LocalContext.current
     var inputValue by remember { mutableStateOf(TextFieldValue("")) }
-    var stackDisplay by remember { mutableStateOf(myStack.contentToString()) }
+    var stackDisplay by remember { mutableStateOf(newStack.contentToString()) }
+
+    fun showError(text: String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+    }
+
 
     Column(
         modifier = Modifier
@@ -87,7 +95,16 @@ fun StackAppUI(context: Context, index: Int) {
 
         OutlinedTextField(
             value = inputValue,
-            onValueChange = { inputValue = it },
+            onValueChange = { newValue ->
+                val text = newValue.text
+
+                if (text.length <= 1 && text.all { it.isDigit() }) {
+                    inputValue = newValue
+                } else {
+                    showError("Input is only 1 digit")
+                }
+
+            },
             label = { Text("Enter number") },
             singleLine = true
         )
@@ -98,21 +115,17 @@ fun StackAppUI(context: Context, index: Int) {
             Button(onClick = {
                 val num = inputValue.text.toIntOrNull()
                 if (num != null) {
-                    push(myStack, num, context)
+                    push(num, context)
                     stackDisplay = myStack.contentToString()
                     inputValue = TextFieldValue("")
-                    Log.d("Current Stack", myStack.contentToString())
-                    Log.d("Current index", index.toString())
                 }
             }) {
                 Text("Push")
             }
 
             Button(onClick = {
-                pop(myStack, context)
+                pop(context)
                 stackDisplay = myStack.contentToString()
-                Log.d("Current Stack", myStack.contentToString())
-                Log.d("Current index", index.toString())
             }) {
                 Text("Pop")
             }
