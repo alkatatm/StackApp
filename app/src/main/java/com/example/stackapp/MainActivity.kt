@@ -37,20 +37,15 @@ fun pop (context: Context)
     val popToast = Toast.makeText(context, "Stack is Empty!", Toast.LENGTH_SHORT)
 
     try {
-        Log.d("Index before pop", stackIndex.toString())
-        myStack.copyInto(newStack, 0, myStack.first(), myStack.last())
-        stackIndex--
-        newStack.copyInto(myStack, 0, newStack.first(), newStack.last())
-        Log.d("Current Stack", myStack.contentToString())
-        Log.d("New Stack", newStack.contentToString())
-        Log.d("Current Index", stackIndex.toString())
+        myStack[stackIndex] = 0
+        if (stackIndex > 0)
+            stackIndex--
 
     } catch (e: ArrayIndexOutOfBoundsException)
     {
         popToast.show();
         stackIndex = 0
     }
-
 
 }
 
