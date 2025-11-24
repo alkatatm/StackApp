@@ -2,6 +2,7 @@ package com.example.stackapp
 
 import android.util.Log
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,70 +14,65 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import kotlin.system.exitProcess
-import android.widget.Button
+import android.widget.Toast
+
 val myStack = IntArray(3)
 val newStack = IntArray(3)
 var stackIndex = 0
-class MainActivity : ComponentActivity() {
 
-    lateinit var button: Button
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("Initial", myStack.contentToString())
-        push(myStack, 3)
-        Log.d("Push1Stack", myStack.contentToString())
-        push(myStack, 7)
-        Log.d("Push2Stack", myStack.contentToString())
-        pop(myStack)
-        Log.d("Pop1Stack", newStack.contentToString())
-        push(myStack, 5)
-        Log.d("Push3Stack", myStack.contentToString())
-        push(myStack, 2)
-        Log.d("Push4Stack", myStack.contentToString())
-        pop(myStack)
-        Log.d("Pop2Stack", newStack.contentToString())
 
-        //setContentView(R.layout.activity_main)
+        setContent{StackAppUI(this)}
 
-        //button = findViewById(R.id.idBtnCloseApplication)
 
-        button.setOnClickListener {
-            //finishAffinity()
-
-            exitProcess(0)
-
-        }
     }
 }
 
 
-fun pop (myStack: IntArray)
+fun pop (context: Context)
 {
-    myStack.copyInto(newStack,0,0, stackIndex - 1)
-    newStack.copyInto(myStack)
-    if(stackIndex >= 0)
-        stackIndex--
-    else
-        stackIndex = 2
+    val popToast = Toast.makeText(context, "Stack is Empty!", Toast.LENGTH_SHORT)
+
+    try {
+        myStack[stackIndex] = 0
+        if (stackIndex > 0)
+            stackIndex--
+
+    } catch (e: ArrayIndexOutOfBoundsException)
+    {
+        popToast.show();
+        stackIndex = 0
+    }
+
 }
 
-fun push (myStack: IntArray, num: Int)
+fun push (num: Int, context: Context)
 {
-    myStack[stackIndex] = num
-    if(stackIndex <= 2)
-        stackIndex++
-    else
-        stackIndex = 0
-
+    val pushToast = Toast.makeText(context, "Stack is Full!", Toast.LENGTH_SHORT)
+    try {
+        myStack[stackIndex] = num
+        if (stackIndex < 2)
+            stackIndex++
+    } catch (e: ArrayIndexOutOfBoundsException) {
+        pushToast.show();
+        stackIndex = 2
+    }
 }
 // ---------- UI ----------
+
 @Composable
-fun StackAppUI() {
+fun StackAppUI(context: Context) {
     val context = LocalContext.current
     var inputValue by remember { mutableStateOf(TextFieldValue("")) }
-    var stackDisplay by remember { mutableStateOf(myStack.contentToString()) }
+    var stackDisplay by remember { mutableStateOf(newStack.contentToString()) }
+
+    fun showError(text: String) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+    }
+
 
     Column(
         modifier = Modifier
@@ -94,7 +90,16 @@ fun StackAppUI() {
 
         OutlinedTextField(
             value = inputValue,
-            onValueChange = { inputValue = it },
+            onValueChange = { newValue ->
+                val text = newValue.text
+
+                if (text.length <= 1 && text.all { it.isDigit() }) {
+                    inputValue = newValue
+                } else {
+                    showError("Input is only 1 digit")
+                }
+
+            },
             label = { Text("Enter number") },
             singleLine = true
         )
@@ -105,7 +110,7 @@ fun StackAppUI() {
             Button(onClick = {
                 val num = inputValue.text.toIntOrNull()
                 if (num != null) {
-                    push(myStack, num)
+                    push(num, context)
                     stackDisplay = myStack.contentToString()
                     inputValue = TextFieldValue("")
                 }
@@ -114,7 +119,7 @@ fun StackAppUI() {
             }
 
             Button(onClick = {
-                pop(myStack)
+                pop(context)
                 stackDisplay = myStack.contentToString()
             }) {
                 Text("Pop")
