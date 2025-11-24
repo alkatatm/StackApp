@@ -37,14 +37,12 @@ fun pop (context: Context)
     val popToast = Toast.makeText(context, "Stack is Empty!", Toast.LENGTH_SHORT)
 
     try {
+        stackIndex--
         myStack[stackIndex] = 0
-        if (stackIndex > 0)
-            stackIndex--
 
     } catch (e: ArrayIndexOutOfBoundsException)
     {
         popToast.show();
-        stackIndex = 0
     }
 
 }
@@ -53,12 +51,13 @@ fun push (num: Int, context: Context)
 {
     val pushToast = Toast.makeText(context, "Stack is Full!", Toast.LENGTH_SHORT)
     try {
+        if (stackIndex <0)
+            stackIndex = 0
         myStack[stackIndex] = num
-        if (stackIndex < 2)
+        if (stackIndex <= 2)
             stackIndex++
     } catch (e: ArrayIndexOutOfBoundsException) {
         pushToast.show();
-        stackIndex = 2
     }
 }
 // ---------- UI ----------
@@ -111,6 +110,7 @@ fun StackAppUI(context: Context) {
                 val num = inputValue.text.toIntOrNull()
                 if (num != null) {
                     push(num, context)
+                    Log.d("Push Index", stackIndex.toString())
                     stackDisplay = myStack.contentToString()
                     inputValue = TextFieldValue("")
                 }
@@ -120,6 +120,8 @@ fun StackAppUI(context: Context) {
 
             Button(onClick = {
                 pop(context)
+                Log.d("Pop Index", stackIndex.toString())
+
                 stackDisplay = myStack.contentToString()
             }) {
                 Text("Pop")
