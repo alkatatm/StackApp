@@ -67,7 +67,7 @@ fun push (num: Int, context: Context)
 fun StackAppUI(context: Context) {
     val context = LocalContext.current
     var inputValue by remember { mutableStateOf(TextFieldValue("")) }
-    var stackDisplay by remember { mutableStateOf(newStack.contentToString()) }
+    var stackDisplay by remember { mutableStateOf(myStack.joinToString(" ")) }
 
     fun showError(text: String) {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
@@ -111,7 +111,7 @@ fun StackAppUI(context: Context) {
                 val num = inputValue.text.toIntOrNull()
                 if (num != null) {
                     push(num, context)
-                    stackDisplay = myStack.contentToString()
+                    stackDisplay = myStack.joinToString(" ")
                     inputValue = TextFieldValue("")
                 }
             }) {
@@ -120,7 +120,7 @@ fun StackAppUI(context: Context) {
 
             Button(onClick = {
                 pop(context)
-                stackDisplay = myStack.contentToString()
+                stackDisplay = myStack.joinToString(" ")
             }) {
                 Text("Pop")
             }
